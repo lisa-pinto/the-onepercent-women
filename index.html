@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Still the Lead — Films Featuring Women Over 50</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink:       #1a1714;
+      --paper:     #f7f4ef;
+      --warm-mid:  #e8e0d4;
+      --gold:      #b8860b;
+      --gold-light:#d4a827;
+      --muted:     #7a7166;
+      --card-bg:   #ffffff;
+      --radius:    4px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      border-bottom: 1px solid var(--warm-mid);
+      padding: 2.5rem 2rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: center;
+    }
+
+    .eyebrow {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+    }
+
+    h1 em { font-style: italic; font-weight: 400; }
+
+    .tagline {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 46ch;
+      line-height: 1.6;
+      margin-top: 0.25rem;
+    }
+
+    /* ── Toolbar ─────────────────────────────────────────── */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--warm-mid);
+      background: var(--paper);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .toolbar input[type="text"] {
+      flex: 1;
+      min-width: 180px;
+      padding: 0.55rem 0.9rem;
+      border: 1px solid var(--warm-mid);
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .toolbar input[type="text"]:focus { border-color: var(--gold); }
+
+    .toolbar select {
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--warm-mid);
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: var(--ink);
+      cursor: pointer;
+      outline: none;
+    }
+
+    .count-badge {
+      margin-left: auto;
+      font-size: 0.78rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* ── Grid ────────────────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ── Card ────────────────────────────────────────────── */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--warm-mid);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(26,23,20,0.10);
+    }
+
+    .card-poster {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      background: var(--warm-mid);
+      display: block;
+    }
+
+    .card-poster-placeholder {
+      width: 100%;
+      aspect-ratio: 2/3;
+      background: var(--warm-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 2rem;
+    }
+
+    .card-body {
+      padding: 0.9rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    .card-year { font-size: 0.78rem; color: var(--muted); }
+
+    .card-actresses {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.2rem;
+    }
+
+    .actress-pill {
+      display: inline-block;
+      background: #fdf6e3;
+      border: 1px solid #e8d9a0;
+      border-radius: 20px;
+      padding: 0.18rem 0.55rem;
+      font-size: 0.73rem;
+      font-weight: 500;
+      color: var(--gold);
+      line-height: 1.4;
+    }
+
+    .pill-age { font-weight: 300; color: var(--muted); }
+
+    .card-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: auto;
+      padding-top: 0.5rem;
+    }
+
+    .star { color: var(--gold-light); }
+
+    /* ── Modal ───────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,23,20,0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      max-width: 640px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-inner { display: flex; gap: 1.5rem; padding: 1.75rem; }
+
+    .modal-poster {
+      width: 140px;
+      flex-shrink: 0;
+      border-radius: var(--radius);
+      object-fit: cover;
+      align-self: flex-start;
+    }
+
+    .modal-poster-placeholder {
+      width: 140px;
+      flex-shrink: 0;
+      aspect-ratio: 2/3;
+      background: var(--warm-mid);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--muted);
+    }
+
+    .modal-info { flex: 1; display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .modal-meta { font-size: 0.82rem; color: var(--muted); }
+
+    .modal-actresses { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .modal-actress-block {
+      background: var(--paper);
+      border-left: 3px solid var(--gold);
+      padding: 0.6rem 0.8rem;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+
+    .modal-actress-name { font-weight: 500; font-size: 0.9rem; }
+    .modal-actress-detail { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
+
+    .modal-synopsis { font-size: 0.88rem; line-height: 1.65; color: #3a3530; }
+
+    .modal-imdb-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--gold);
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 0.25rem;
+    }
+
+    .modal-imdb-link:hover { text-decoration: underline; }
+
+    .modal-close {
+      align-self: flex-end;
+      margin: 0.75rem 0.75rem 0;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    /* ── Setup panel ─────────────────────────────────────── */
+    .setup-panel {
+      max-width: 640px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--warm-mid);
+      border-radius: var(--radius);
+    }
+
+    .setup-panel h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .setup-panel p { font-size: 0.88rem; line-height: 1.65; color: #3a3530; margin-bottom: 0.75rem; }
+    .setup-panel code { background: var(--warm-mid); padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.82rem; }
+
+    .setup-form { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.25rem; }
+    .setup-form label { font-size: 0.82rem; font-weight: 500; }
+
+    .setup-form input {
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--warm-mid);
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      color: var(--ink);
+      outline: none;
+      width: 100%;
+    }
+
+    .setup-form input:focus { border-color: var(--gold); }
+
+    .btn-primary {
+      padding: 0.65rem 1.4rem;
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: background 0.15s;
+      align-self: flex-start;
+    }
+
+    .btn-primary:hover { background: #333; }
+
+    /* ── States ──────────────────────────────────────────── */
+    .state-msg {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      grid-column: 1/-1;
+    }
+
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--warm-mid);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--warm-mid);
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 520px) {
+      .modal-inner { flex-direction: column; }
+      .modal-poster, .modal-poster-placeholder { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="eyebrow">A curated film repository</span>
+  <h1>Still <em>the</em> Lead</h1>
+  <p class="tagline">Films where women over 50 are the story — not the footnote.</p>
+</header>
+
+<div class="toolbar" id="toolbar" style="display:none">
+  <input type="text" id="searchInput" placeholder="Search title or actress…" oninput="filterCards()" />
+  <select id="genreFilter" onchange="filterCards()">
+    <option value="">All genres</option>
+  </select>
+  <select id="decadeFilter" onchange="filterCards()">
+    <option value="">All decades</option>
+  </select>
+  <select id="countryFilter" onchange="filterCards()">
+    <option value="">All countries</option>
+  </select>
+  <select id="sortSelect" onchange="filterCards()">
+    <option value="year-desc">Newest first</option>
+    <option value="year-asc">Oldest first</option>
+    <option value="rating-desc">Highest rated</option>
+    <option value="title-asc">A–Z</option>
+  </select>
+  <span class="count-badge" id="countBadge"></span>
+</div>
+
+<main>
+  <div class="grid" id="grid">
+    <div class="state-msg" id="stateMsg">
+      <div class="spinner"></div>
+      Loading…
+    </div>
+  </div>
+
+  <div class="setup-panel" id="setupPanel" style="display:none">
+    <h2>First-time setup</h2>
+    <p>Paste the <strong>published CSV URL</strong> of your Google Sheet below. Film data is stored directly in your sheet — no API calls are made when visitors load the site.</p>
+
+    <p><strong>How to get the Google Sheet CSV URL:</strong><br>
+    In Google Sheets go to <code>File → Share → Publish to web</code>, choose <code>Entire document</code> and <code>Comma-separated values (.csv)</code>, then click Publish. Paste the URL here.</p>
+
+    <p><strong>Required sheet columns (exact names in row 1):</strong><br>
+    <code>imdb_url</code> &nbsp;
+    <code>actresses</code> &nbsp;
+    <code>title</code> &nbsp;
+    <code>year</code> &nbsp;
+    <code>poster</code> &nbsp;
+    <code>rating</code> &nbsp;
+    <code>genre</code> &nbsp;
+    <code>country</code> &nbsp;
+    <code>synopsis</code><br>
+    Columns C–I are filled automatically by the Apps Script — you only enter A and B.</p>
+
+    <div class="setup-form">
+      <label for="sheetUrlInput">Google Sheet CSV URL</label>
+      <input type="text" id="sheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv" />
+      <button class="btn-primary" onclick="saveConfig()">Save and load films</button>
+    </div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-inner" id="modalInner"></div>
+  </div>
+</div>
+
+<footer>
+  Still the Lead &nbsp;|&nbsp;
+  <a href="#" onclick="openSetup()" style="color:var(--muted)">Settings</a>
+</footer>
+
+<script>
+const LS_KEY = 'stillLead_v2_config';
+
+function getConfig() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function saveConfig() {
+  const url = document.getElementById('sheetUrlInput').value.trim();
+  if (!url) { alert('Please paste your Google Sheet CSV URL.'); return; }
+  localStorage.setItem(LS_KEY, JSON.stringify({ sheetUrl: url }));
+  document.getElementById('setupPanel').style.display = 'none';
+  loadAll();
+}
+
+function openSetup() {
+  const cfg = getConfig();
+  document.getElementById('sheetUrlInput').value = cfg.sheetUrl || '';
+  document.getElementById('setupPanel').style.display = 'block';
+  document.getElementById('grid').style.display = 'none';
+  document.getElementById('toolbar').style.display = 'none';
+}
+
+// ─── Data ─────────────────────────────────────────────────
+let allMovies = [];
+
+async function loadAll() {
+  const cfg = getConfig();
+  if (!cfg.sheetUrl) { showSetup(); return; }
+
+  setMsg('<div class="spinner"></div>Loading films…');
+
+  let rows;
+  try {
+    rows = await fetchSheet(cfg.sheetUrl);
+  } catch(e) {
+    setMsg('Could not load the Google Sheet. Check the URL in Settings.'); return;
+  }
+
+  // Only include rows that have a title (i.e. Apps Script has run on them)
+  allMovies = rows
+    .filter(r => r.imdb_url && r.title)
+    .map(r => ({
+      imdbUrl:  r.imdb_url,
+      title:    r.title,
+      year:     parseInt(r.year) || 0,
+      poster:   r.poster || null,
+      rating:   parseFloat(r.rating) || null,
+      genre:    r.genre || '',
+      country:  r.country || '',
+      synopsis: r.synopsis || '',
+      decade:   Math.floor((parseInt(r.year) || 0) / 10) * 10,
+      actresses: parseActresses(r.actresses || ''),
+    }));
+
+  if (!allMovies.length) {
+    setMsg('No films found. Make sure you have run the Apps Script to fill in your sheet data.'); return;
+  }
+
+  populateFilters();
+  document.getElementById('toolbar').style.display = 'flex';
+  document.getElementById('grid').style.display    = 'grid';
+  document.getElementById('stateMsg').style.display = 'none';
+  filterCards();
+}
+
+function parseActresses(str) {
+  return str.split('|').map(s => {
+    s = s.trim();
+    const m = s.match(/^(.+?)\s*\((\d+)\)\s*$/);
+    if (m) return { name: m[1].trim(), age: m[2] };
+    return s ? { name: s, age: '' } : null;
+  }).filter(Boolean);
+}
+
+async function fetchSheet(url) {
+  const res = await fetch(url);
+  const text = await res.text();
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+
+  return lines.slice(1).map(line => {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let c of line) {
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur); cur = ''; }
+      else { cur += c; }
+    }
+    cols.push(cur);
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (cols[i] || '').replace(/^"|"$/g, '').trim());
+    return obj;
+  }).filter(r => r.imdb_url);
+}
+
+// ─── Render ───────────────────────────────────────────────
+function filterCards() {
+  const q       = document.getElementById('searchInput').value.toLowerCase();
+  const genre   = document.getElementById('genreFilter').value;
+  const decade  = document.getElementById('decadeFilter').value;
+  const country = document.getElementById('countryFilter').value;
+  const sort    = document.getElementById('sortSelect').value;
+
+  let list = allMovies.filter(m => {
+    const actressMatch = m.actresses.some(a => a.name.toLowerCase().includes(q));
+    const matchQ = !q      || m.title.toLowerCase().includes(q) || actressMatch;
+    const matchG = !genre   || m.genre.includes(genre);
+    const matchD = !decade  || m.decade === parseInt(decade);
+    const matchC = !country || m.country.includes(country);
+    return matchQ && matchG && matchD && matchC;
+  });
+
+  list.sort((a, b) => {
+    if (sort === 'year-desc')   return b.year - a.year;
+    if (sort === 'year-asc')    return a.year - b.year;
+    if (sort === 'rating-desc') return (b.rating||0) - (a.rating||0);
+    if (sort === 'title-asc')   return a.title.localeCompare(b.title);
+    return 0;
+  });
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  if (!list.length) {
+    grid.innerHTML = '<p class="state-msg">No films match your search.</p>';
+    document.getElementById('countBadge').textContent = '';
+    return;
+  }
+
+  document.getElementById('countBadge').textContent = `${list.length} film${list.length===1?'':'s'}`;
+
+  list.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.onclick = () => openModal(m);
+    card.innerHTML = `
+      ${m.poster
+        ? `<img class="card-poster" src="${m.poster}" alt="${m.title}" loading="lazy" />`
+        : `<div class="card-poster-placeholder">🎬</div>`}
+      <div class="card-body">
+        <div class="card-title">${m.title}</div>
+        <div class="card-year">${m.year || '—'}</div>
+        ${m.actresses.length ? `<div class="card-actresses">${m.actresses.map(a =>
+          `<span class="actress-pill">${a.name}${a.age ? ` <span class="pill-age">(${a.age})</span>` : ''}</span>`
+        ).join('')}</div>` : ''}
+        ${m.rating ? `<div class="card-rating"><span class="star">★</span>${m.rating}/10</div>` : ''}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function populateFilters() {
+  const genres = new Set();
+  allMovies.forEach(m => m.genre.split(',').forEach(g => { if (g.trim()) genres.add(g.trim()); }));
+  const genreSel = document.getElementById('genreFilter');
+  [...genres].sort().forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g; opt.textContent = g;
+    genreSel.appendChild(opt);
+  });
+
+  const decades = new Set();
+  allMovies.forEach(m => { if (m.decade) decades.add(m.decade); });
+  const decSel = document.getElementById('decadeFilter');
+  [...decades].sort((a,b) => b - a).forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d + 's';
+    decSel.appendChild(opt);
+  });
+
+  const countries = new Set();
+  allMovies.forEach(m => m.country.split(',').forEach(c => { if (c.trim()) countries.add(c.trim()); }));
+  const ctSel = document.getElementById('countryFilter');
+  [...countries].sort().forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    ctSel.appendChild(opt);
+  });
+}
+
+// ─── Modal ────────────────────────────────────────────────
+function openModal(m) {
+  document.getElementById('modalInner').innerHTML = `
+    ${m.poster
+      ? `<img class="modal-poster" src="${m.poster}" alt="${m.title}" />`
+      : `<div class="modal-poster-placeholder">🎬</div>`}
+    <div class="modal-info">
+      <div class="modal-title">${m.title}</div>
+      <div class="modal-meta">${m.year || ''}${m.year && m.genre ? ' · ' : ''}${m.genre}${m.country ? ' · ' + m.country : ''}</div>
+      ${m.rating ? `<div class="card-rating"><span class="star">★</span> ${m.rating}/10 on IMDb</div>` : ''}
+      ${m.actresses.length ? `
+        <div class="modal-actresses">
+          ${m.actresses.map(a => `
+            <div class="modal-actress-block">
+              <div class="modal-actress-name">${a.name}</div>
+              ${a.age ? `<div class="modal-actress-detail">Age ${a.age} at time of filming</div>` : ''}
+            </div>`).join('')}
+        </div>` : ''}
+      ${m.synopsis ? `<p class="modal-synopsis">${m.synopsis}</p>` : ''}
+      <a class="modal-imdb-link" href="${m.imdbUrl}" target="_blank" rel="noopener">View on IMDb ↗</a>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay') || e.currentTarget.tagName === 'BUTTON') {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+
+// ─── Helpers ──────────────────────────────────────────────
+function setMsg(html) {
+  const msg = document.getElementById('stateMsg');
+  msg.innerHTML = html;
+  msg.style.display = 'block';
+  document.getElementById('toolbar').style.display = 'none';
+  document.getElementById('grid').style.display    = 'grid';
+}
+
+function showSetup() {
+  document.getElementById('stateMsg').style.display  = 'none';
+  document.getElementById('grid').style.display      = 'none';
+  document.getElementById('setupPanel').style.display = 'block';
+  const cfg = getConfig();
+  document.getElementById('sheetUrlInput').value = cfg.sheetUrl || '';
+}
+
+(function init() {
+  const cfg = getConfig();
+  if (!cfg.sheetUrl) { showSetup(); } else { loadAll(); }
+})();
+</script>
+</body>
+</html>
