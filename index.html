@@ -311,57 +311,7 @@
       line-height: 1;
     }
 
-    /* ── Setup panel ─────────────────────────────────────── */
-    .setup-panel {
-      max-width: 640px;
-      margin: 3rem auto;
-      padding: 2rem;
-      background: var(--card-bg);
-      border: 1px solid var(--warm-mid);
-      border-radius: var(--radius);
-    }
 
-    .setup-panel h2 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .setup-panel p { font-size: 0.88rem; line-height: 1.65; color: #3a3530; margin-bottom: 0.75rem; }
-    .setup-panel code { background: var(--warm-mid); padding: 0.15em 0.4em; border-radius: 3px; font-size: 0.82rem; }
-
-    .setup-form { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.25rem; }
-    .setup-form label { font-size: 0.82rem; font-weight: 500; }
-
-    .setup-form input {
-      padding: 0.6rem 0.8rem;
-      border: 1px solid var(--warm-mid);
-      border-radius: var(--radius);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem;
-      color: var(--ink);
-      outline: none;
-      width: 100%;
-    }
-
-    .setup-form input:focus { border-color: var(--gold); }
-
-    .btn-primary {
-      padding: 0.65rem 1.4rem;
-      background: var(--ink);
-      color: var(--paper);
-      border: none;
-      border-radius: var(--radius);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 500;
-      cursor: pointer;
-      letter-spacing: 0.04em;
-      transition: background 0.15s;
-      align-self: flex-start;
-    }
-
-    .btn-primary:hover { background: #333; }
 
     /* ── States ──────────────────────────────────────────── */
     .state-msg {
@@ -435,31 +385,7 @@
     </div>
   </div>
 
-  <div class="setup-panel" id="setupPanel" style="display:none">
-    <h2>First-time setup</h2>
-    <p>Paste the <strong>published CSV URL</strong> of your Google Sheet below. Film data is stored directly in your sheet — no API calls are made when visitors load the site.</p>
 
-    <p><strong>How to get the Google Sheet CSV URL:</strong><br>
-    In Google Sheets go to <code>File → Share → Publish to web</code>, choose <code>Entire document</code> and <code>Comma-separated values (.csv)</code>, then click Publish. Paste the URL here.</p>
-
-    <p><strong>Required sheet columns (exact names in row 1):</strong><br>
-    <code>imdb_url</code> &nbsp;
-    <code>actresses</code> &nbsp;
-    <code>title</code> &nbsp;
-    <code>year</code> &nbsp;
-    <code>poster</code> &nbsp;
-    <code>rating</code> &nbsp;
-    <code>genre</code> &nbsp;
-    <code>country</code> &nbsp;
-    <code>synopsis</code><br>
-    Columns C–I are filled automatically by the Apps Script — you only enter A and B.</p>
-
-    <div class="setup-form">
-      <label for="sheetUrlInput">Google Sheet CSV URL</label>
-      <input type="text" id="sheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/…/pub?output=csv" />
-      <button class="btn-primary" onclick="saveConfig()">Save and load films</button>
-    </div>
-  </div>
 </main>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
@@ -470,46 +396,26 @@
 </div>
 
 <footer>
-  Still the Lead &nbsp;|&nbsp;
-  <a href="#" onclick="openSetup()" style="color:var(--muted)">Settings</a>
+  Still the Lead
 </footer>
 
 <script>
-const LS_KEY = 'stillLead_v2_config';
 
-function getConfig() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
-  catch { return {}; }
-}
-
-function saveConfig() {
-  const url = document.getElementById('sheetUrlInput').value.trim();
-  if (!url) { alert('Please paste your Google Sheet CSV URL.'); return; }
-  localStorage.setItem(LS_KEY, JSON.stringify({ sheetUrl: url }));
-  document.getElementById('setupPanel').style.display = 'none';
-  loadAll();
-}
-
-function openSetup() {
-  const cfg = getConfig();
-  document.getElementById('sheetUrlInput').value = cfg.sheetUrl || '';
-  document.getElementById('setupPanel').style.display = 'block';
-  document.getElementById('grid').style.display = 'none';
-  document.getElementById('toolbar').style.display = 'none';
-}
 
 // ─── Data ─────────────────────────────────────────────────
 let allMovies = [];
 
 async function loadAll() {
-  const cfg = getConfig();
-  if (!cfg.sheetUrl) { showSetup(); return; }
+  const url = SHEET_URL;
+  if (!url || url.includes('YOUR_GOOGLE')) {
+    setMsg('Sheet URL not configured. Open index.html and set the SHEET_URL variable.'); return;
+  }
 
   setMsg('<div class="spinner"></div>Loading films…');
 
   let rows;
   try {
-    rows = await fetchSheet(cfg.sheetUrl);
+    rows = await fetchSheet(url);
   } catch(e) {
     setMsg('Could not load the Google Sheet. Check the URL in Settings.'); return;
   }
@@ -695,17 +601,13 @@ function setMsg(html) {
   document.getElementById('grid').style.display    = 'grid';
 }
 
-function showSetup() {
-  document.getElementById('stateMsg').style.display  = 'none';
-  document.getElementById('grid').style.display      = 'none';
-  document.getElementById('setupPanel').style.display = 'block';
-  const cfg = getConfig();
-  document.getElementById('sheetUrlInput').value = cfg.sheetUrl || '';
-}
+
+
+// ── Hardcoded sheet URL — replace with your own ──────────
+const SHEET_URL = 'YOUR_GOOGLE_SHEET_CSV_URL_HERE';
 
 (function init() {
-  const cfg = getConfig();
-  if (!cfg.sheetUrl) { showSetup(); } else { loadAll(); }
+  loadAll();
 })();
 </script>
 </body>
