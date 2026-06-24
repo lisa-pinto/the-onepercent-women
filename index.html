@@ -365,8 +365,8 @@
   <select id="decadeFilter" onchange="filterCards()">
     <option value="">All decades</option>
   </select>
-  <select id="countryFilter" onchange="filterCards()">
-    <option value="">All countries</option>
+  <select id="languageFilter" onchange="filterCards()">
+    <option value="">All languages</option>
   </select>
   <select id="actressAgeFilter" onchange="filterCards()">
     <option value="">All ages at filming</option>
@@ -435,7 +435,7 @@ async function loadAll() {
       poster:   r.poster || null,
       rating:   parseFloat(r.rating) || null,
       genre:    r.genre || '',
-      country:  r.country || '',
+      language: r.language || '',
       synopsis: r.synopsis || '',
       decade:   Math.floor((parseInt(r.year) || 0) / 10) * 10,
       actresses: parseActresses(r.actresses || '', parseInt(r.year) || 0),
@@ -491,7 +491,7 @@ function filterCards() {
   const q          = document.getElementById('searchInput').value.toLowerCase();
   const genre      = document.getElementById('genreFilter').value;
   const decade     = document.getElementById('decadeFilter').value;
-  const country    = document.getElementById('countryFilter').value;
+  const language   = document.getElementById('languageFilter').value;
   const actressAge = document.getElementById('actressAgeFilter').value;
   const sort       = document.getElementById('sortSelect').value;
 
@@ -500,7 +500,7 @@ function filterCards() {
     const matchQ  = !q         || m.title.toLowerCase().includes(q) || actressMatch;
     const matchG  = !genre     || m.genre.includes(genre);
     const matchD  = !decade    || m.decade === parseInt(decade);
-    const matchC  = !country   || m.country.includes(country);
+    const matchC  = !language  || m.language.includes(language);
     const matchAA = !actressAge || m.actresses.some(a => {
       if (a.age === null) return false;
       return Math.floor(a.age / 10) * 10 === parseInt(actressAge);
@@ -571,12 +571,12 @@ function populateFilters() {
     decSel.appendChild(opt);
   });
 
-  const countries = new Set();
-  allMovies.forEach(m => m.country.split(',').forEach(c => { if (c.trim()) countries.add(c.trim()); }));
-  const ctSel = document.getElementById('countryFilter');
-  [...countries].sort().forEach(c => {
+  const languages = new Set();
+  allMovies.forEach(m => m.language.split(',').forEach(l => { if (l.trim()) languages.add(l.trim()); }));
+  const ctSel = document.getElementById('languageFilter');
+  [...languages].sort().forEach(l => {
     const opt = document.createElement('option');
-    opt.value = c; opt.textContent = c;
+    opt.value = l; opt.textContent = l;
     ctSel.appendChild(opt);
   });
 
@@ -602,7 +602,7 @@ function openModal(m) {
       : `<div class="modal-poster-placeholder">🎬</div>`}
     <div class="modal-info">
       <div class="modal-title">${m.title}</div>
-      <div class="modal-meta">${m.year || ''}${m.year && m.genre ? ' · ' : ''}${m.genre}${m.country ? ' · ' + m.country : ''}</div>
+      <div class="modal-meta">${m.year || ''}${m.year && m.genre ? ' · ' : ''}${m.genre}${m.language ? ' · ' + m.language : ''}</div>
       ${m.rating ? `<div class="card-rating"><span class="star">★</span> ${m.rating}/10 on IMDb</div>` : ''}
       ${m.actresses.length ? `
         <div class="modal-actresses">
