@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Show goes On </title>
+  <title>Still the Lead — Films Featuring Women Over 50</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
@@ -353,9 +353,8 @@
 
 <header>
   <span class="eyebrow">A curated film repository</span>
-  <h1>The Show Goes On</h1>
-  <p class="tagline">Films where women over 50 are leads or co-leads</p>
-  <p class="tagline">Less than 3% of movies starring a person over 50 portray women as the lead. This website aims to list the movies that depict the breadth of experiences of middle-aged to senior women.</p>
+  <h1>Still <em>the</em> Lead</h1>
+  <p class="tagline">Films where women over 50 are the story — not the footnote.</p>
 </header>
 
 <div class="toolbar" id="toolbar" style="display:none">
@@ -369,11 +368,16 @@
   <select id="countryFilter" onchange="filterCards()">
     <option value="">All countries</option>
   </select>
+  <select id="actressAgeFilter" onchange="filterCards()">
+    <option value="">All ages at filming</option>
+  </select>
   <select id="sortSelect" onchange="filterCards()">
     <option value="year-desc">Newest first</option>
     <option value="year-asc">Oldest first</option>
     <option value="rating-desc">Highest rated</option>
     <option value="title-asc">A–Z</option>
+    <option value="age-desc">Oldest actress first</option>
+    <option value="age-asc">Youngest actress first</option>
   </select>
   <span class="count-badge" id="countBadge"></span>
 </div>
@@ -434,7 +438,7 @@ async function loadAll() {
       country:  r.country || '',
       synopsis: r.synopsis || '',
       decade:   Math.floor((parseInt(r.year) || 0) / 10) * 10,
-      actresses: parseActresses(r.actresses || ''),
+      actresses: parseActresses(r.actresses || '', parseInt(r.year) || 0),
     }));
 
   if (!allMovies.length) {
@@ -448,12 +452,16 @@ async function loadAll() {
   filterCards();
 }
 
-function parseActresses(str) {
+function parseActresses(str, releaseYear) {
   return str.split('|').map(s => {
     s = s.trim();
     const m = s.match(/^(.+?)\s*\((\d+)\)\s*$/);
-    if (m) return { name: m[1].trim(), age: m[2] };
-    return s ? { name: s, age: '' } : null;
+    if (m) {
+      const birthYear = parseInt(m[2]);
+      const age = releaseYear ? releaseYear - 1 - birthYear : null;
+      return { name: m[1].trim(), birthYear, age };
+    }
+    return s ? { name: s, birthYear: null, age: null } : null;
   }).filter(Boolean);
 }
 
@@ -480,26 +488,36 @@ async function fetchSheet(url) {
 
 // ─── Render ───────────────────────────────────────────────
 function filterCards() {
-  const q       = document.getElementById('searchInput').value.toLowerCase();
-  const genre   = document.getElementById('genreFilter').value;
-  const decade  = document.getElementById('decadeFilter').value;
-  const country = document.getElementById('countryFilter').value;
-  const sort    = document.getElementById('sortSelect').value;
+  const q          = document.getElementById('searchInput').value.toLowerCase();
+  const genre      = document.getElementById('genreFilter').value;
+  const decade     = document.getElementById('decadeFilter').value;
+  const country    = document.getElementById('countryFilter').value;
+  const actressAge = document.getElementById('actressAgeFilter').value;
+  const sort       = document.getElementById('sortSelect').value;
 
   let list = allMovies.filter(m => {
     const actressMatch = m.actresses.some(a => a.name.toLowerCase().includes(q));
-    const matchQ = !q      || m.title.toLowerCase().includes(q) || actressMatch;
-    const matchG = !genre   || m.genre.includes(genre);
-    const matchD = !decade  || m.decade === parseInt(decade);
-    const matchC = !country || m.country.includes(country);
-    return matchQ && matchG && matchD && matchC;
+    const matchQ  = !q         || m.title.toLowerCase().includes(q) || actressMatch;
+    const matchG  = !genre     || m.genre.includes(genre);
+    const matchD  = !decade    || m.decade === parseInt(decade);
+    const matchC  = !country   || m.country.includes(country);
+    const matchAA = !actressAge || m.actresses.some(a => {
+      if (a.age === null) return false;
+      return Math.floor(a.age / 10) * 10 === parseInt(actressAge);
+    });
+    return matchQ && matchG && matchD && matchC && matchAA;
   });
+
+  // Helper: get oldest actress age in a film
+  const maxAge = m => Math.max(...m.actresses.map(a => a.age || 0));
 
   list.sort((a, b) => {
     if (sort === 'year-desc')   return b.year - a.year;
     if (sort === 'year-asc')    return a.year - b.year;
     if (sort === 'rating-desc') return (b.rating||0) - (a.rating||0);
     if (sort === 'title-asc')   return a.title.localeCompare(b.title);
+    if (sort === 'age-desc')    return maxAge(b) - maxAge(a);
+    if (sort === 'age-asc')     return maxAge(a) - maxAge(b);
     return 0;
   });
 
@@ -526,7 +544,7 @@ function filterCards() {
         <div class="card-title">${m.title}</div>
         <div class="card-year">${m.year || '—'}</div>
         ${m.actresses.length ? `<div class="card-actresses">${m.actresses.map(a =>
-          `<span class="actress-pill">${a.name}${a.age ? ` <span class="pill-age">(${a.age})</span>` : ''}</span>`
+          `<span class="actress-pill">${a.name}${a.age !== null ? ` <span class="pill-age">(${a.age})</span>` : ''}</span>`
         ).join('')}</div>` : ''}
         ${m.rating ? `<div class="card-rating"><span class="star">★</span>${m.rating}/10</div>` : ''}
       </div>`;
@@ -561,6 +579,19 @@ function populateFilters() {
     opt.value = c; opt.textContent = c;
     ctSel.appendChild(opt);
   });
+
+  // Actress age at filming decades
+  const ageBrackets = new Set();
+  allMovies.forEach(m => m.actresses.forEach(a => {
+    if (a.age !== null) ageBrackets.add(Math.floor(a.age / 10) * 10);
+  }));
+  const aaSel = document.getElementById('actressAgeFilter');
+  [...ageBrackets].sort((a,b) => a - b).forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d;
+    opt.textContent = `${d}s (age at filming)`;
+    aaSel.appendChild(opt);
+  });
 }
 
 // ─── Modal ────────────────────────────────────────────────
@@ -578,7 +609,7 @@ function openModal(m) {
           ${m.actresses.map(a => `
             <div class="modal-actress-block">
               <div class="modal-actress-name">${a.name}</div>
-              ${a.age ? `<div class="modal-actress-detail">Age ${a.age} at time of filming</div>` : ''}
+              ${a.age !== null ? `<div class="modal-actress-detail">Age ${a.age} at time of filming</div>` : ''}
             </div>`).join('')}
         </div>` : ''}
       ${m.synopsis ? `<p class="modal-synopsis">${m.synopsis}</p>` : ''}
