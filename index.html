@@ -354,8 +354,8 @@
 <header>
   <span class="eyebrow">A curated film repository</span>
   <h1>The <em>1%</em> Women</h1>
-  <p>Women aged 50+ make up <a href="https://geenadavisinstitute.org/wp-content/uploads/2024/01/GDIGM-Next50-WomenOver50-Study.pdf" target="_blank" font-color="black">just ~1% of lead and co-leadcharacters</a> in Hollywood, compared to 14% for 50+ men</p>
-    <p>That means in that age cohort, a man is <b>14x</b> more likely to be cast in a leading role than his female counterparts, a staggering number.</p>
+  <p>Women aged 50+ make up <a href="https://geenadavisinstitute.org/wp-content/uploads/2024/01/GDIGM-Next50-WomenOver50-Study.pdf" target="_blank" font-color="black">just ~1% of lead and co-lead characters</a> in major Hollywood movies, compared to 14% for 50+ men</p>
+    <p>That means in that age cohort, a man is a <b>staggering 14x</b> more likely to be cast in a leading role than his female counterpart.</p>
   <p>This repository is dedicated to this 1%, showing their contributions to cinema.</p>
 </header>
 
@@ -369,6 +369,9 @@
   </select>
   <select id="languageFilter" onchange="filterCards()">
     <option value="">All languages</option>
+  </select>
+  <select id="actressFilter" onchange="filterCards()">
+    <option value="">All actresses</option>
   </select>
   <select id="actressAgeFilter" onchange="filterCards()">
     <option value="">All ages at filming</option>
@@ -494,6 +497,7 @@ function filterCards() {
   const genre      = document.getElementById('genreFilter').value;
   const decade     = document.getElementById('decadeFilter').value;
   const language   = document.getElementById('languageFilter').value;
+  const actress    = document.getElementById('actressFilter').value;
   const actressAge = document.getElementById('actressAgeFilter').value;
   const sort       = document.getElementById('sortSelect').value;
 
@@ -503,11 +507,12 @@ function filterCards() {
     const matchG  = !genre     || m.genre.includes(genre);
     const matchD  = !decade    || m.decade === parseInt(decade);
     const matchC  = !language  || m.language.includes(language);
+    const matchA  = !actress   || m.actresses.some(a => a.name.toLowerCase() === actress.toLowerCase());
     const matchAA = !actressAge || m.actresses.some(a => {
       if (a.age === null) return false;
       return Math.floor(a.age / 10) * 10 === parseInt(actressAge);
     });
-    return matchQ && matchG && matchD && matchC && matchAA;
+    return matchQ && matchG && matchD && matchC && matchA && matchAA;
   });
 
   // Helper: get oldest actress age in a film
@@ -580,6 +585,18 @@ function populateFilters() {
     const opt = document.createElement('option');
     opt.value = l; opt.textContent = l;
     ctSel.appendChild(opt);
+  });
+
+  const actresses = new Set();
+  allMovies.forEach(m => m.actresses.forEach(a => {
+    if (a && a.name) actresses.add(a.name.trim());
+  }));
+  const actressSel = document.getElementById('actressFilter');
+  [...actresses].sort((a, b) => a.localeCompare(b)).forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    actressSel.appendChild(opt);
   });
 
   // Actress age at filming decades
